@@ -35,6 +35,8 @@ var defaultState = {
 	todos: []
 };
 
+var nextTodoId = 1;
+
 //Reducer takes state and action, combines them and return new state (completely different object)
 var reducer = (state = defaultState, action) => {
 	
@@ -44,6 +46,16 @@ var reducer = (state = defaultState, action) => {
 				...state,
 				searchTodo: action.searchTodo
 			};
+		case 'ADD_TODO':
+			return {
+				...state,
+				todos: [...state.todos, 
+					{
+						id: nextTodoId++,
+						todo: action.todo
+					}
+				]
+			}
 		default:
 			return state;
 	}
@@ -72,14 +84,8 @@ var action = {
 	searchTodo: 'new'
 };
 store.dispatch(action);
-var action = {
-	type: 'CHANGE_SEARCH_TODO',
-	searchTodo: 'dog'
-};
-store.dispatch(action);
-var action = {
-	type: 'CHANGE_SEARCH_TODO',
-	searchTodo: 'wow'
-};
 
-store.dispatch(action);
+store.dispatch({
+	type: 'ADD_TODO',
+	todo: 'Walk dog'
+});
