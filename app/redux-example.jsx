@@ -18,6 +18,11 @@ Watch Section 10, video 106 for all the examples
 reducer function takes two arguments
 1. default state
 2. action that can be dispatched onto the state to change it.
+
+Basic points for REDUX
+1. Create a reducer that takes state and action
+2. Dispatch action on the state using reducer which returns new state
+3. Subscribe to state changes so that whatever component are dependent on changes can re-render themselves
 */
 
 var redux = require('redux');
@@ -44,15 +49,37 @@ var reducer = (state = defaultState, action) => {
 	}
 };
 
-var store = redux.createStore(reducer);
+var store = redux.createStore(reducer, redux.compose(
+	//this function is a sort of configuration with which it is possible to use redux devtools with chrome dev tools. Just copy paste this.
+	//This actually tell which store shall be use with Redux devTools
+	window.devToolsExtension ? window.devToolsExtension() : f => f
+));
 
-console.log('currentState', store.getState());
+//subscribe to changes. subscribe method takes only one argument which is a cb that is executed whenever the state changes
+//call to subscribe returns a function that can be called to unsubscribe from state changes.
+
+var unsuscribeStore = store.subscribe(() => {
+	var state = store.getState();
+	//console.log('State searchTodo: ' + state.searchTodo);
+	document.getElementById('app').innerHTML = state.searchTodo;
+});
+
+//following is for unsubscribing...
+//unsubscribe();
 
 var action = {
 	type: 'CHANGE_SEARCH_TODO',
 	searchTodo: 'new'
-}
+};
+store.dispatch(action);
+var action = {
+	type: 'CHANGE_SEARCH_TODO',
+	searchTodo: 'dog'
+};
+store.dispatch(action);
+var action = {
+	type: 'CHANGE_SEARCH_TODO',
+	searchTodo: 'wow'
+};
 
 store.dispatch(action);
-
-console.log('currentState', store.getState());
