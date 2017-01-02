@@ -12,3 +12,5 @@ ReactDOM.render(
   	<p>React Boilerplate</p>,
   	document.getElementById('app')
 );
+
+var redux = require('./redux-example');
