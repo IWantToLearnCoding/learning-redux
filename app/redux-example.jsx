@@ -26,17 +26,17 @@ Basic points for REDUX
 */
 
 var redux = require('redux');
-var axios = require('axios');
 
 console.log('Starting Redux First App');
+
+var actions = require('./actions/index');
+var store = require('./store/configureStore').configure();
 
 /*var defaultState = {
 	searchTodo: '',
 	showCompleted: false,
 	todos: []
 };*/
-
-var nextTodoId = 1;
 
 //Reducer takes state and action, combines them and return new state (completely different object)
 /*var oldReducer = (state = defaultState, action) => {
@@ -66,118 +66,9 @@ var nextTodoId = 1;
 			return state;
 	}
 };*/
-//SearchTodoReducer and aciton generators
-//-------------------------------
-var searchTodoReducer = (state = '', action) => {
-	switch(action.type) {
-		case 'CHANGE_SEARCH_TODO':
-			return action.searchTodo;
-		default:
-			return state;
-	}	
-};
-
-
-//showCompletedReducer and aciton generators
-//-------------------------------
-var showCompletedReducer = (state = false, action) => {
-	switch(action.type) {
-		case 'CHANGE_STATUS': 
-			return action.showCompleted;
-		default:
-			return state;
-	}
-};
-
-//todosReducer and aciton generators
-//-------------------------------
-var todosReducer = (state = [], action) => {
-	switch(action.type) {
-		case 'ADD_TODO':
-			return [
-				...state,
-				{
-					id: nextTodoId++,
-					todo: action.todo
-				}
-			];
-		case 'REMOVE_TODO': 
-			return state.filter((todo) => todo.id !== action.id);
-		default:
-			return state;	
-	}
-};
-var addTodo = (todo) => {
-	return {
-		type: 'ADD_TODO',
-		todo
-	};
-};
-
-var removeTodo = (id) => {
-	return {
-		type: 'REMOVE_TODO',
-		id
-	}
-};
-
-var mapReducer = (state = {isFetching: false, url: undefined}, action) => {
-	switch(action.type) {
-		case 'START_LOCATION_FETCH':
-			return { 
-					isFetching: true,
-					url: undefined
-				};
-		case 'COMPLETE_LOCATION_FETCH': 
-			return {
-					isFetching: false,
-					url: action.url
-				};
-		default:
-			return state;	
-	}
-};
-
-var startLocationFetch = () => {
-	return {
-		type: 'START_LOCATION_FETCH'
-	};
-};
-
-var completeLocationFetch = (url) => {
-	return {
-		type: 'COMPLETE_LOCATION_FETCH',
-		url
-	};
-};
-
-var reducer = redux.combineReducers({
-	searchTodo: searchTodoReducer,
-	showCompleted: showCompletedReducer,
-	todos: todosReducer,
-	map: mapReducer
-});
-
-var store = redux.createStore(reducer, redux.compose(
-	//this function is a sort of configuration with which it is possible to use redux devtools with chrome dev tools. Just copy paste this.
-	//This actually tell which store shall be use with Redux devTools
-	window.devToolsExtension ? window.devToolsExtension() : f => f
-));
 
 //subscribe to changes. subscribe method takes only one argument which is a cb that is executed whenever the state changes
 //call to subscribe returns a function that can be called to unsubscribe from state changes.
-
-var fetchLocation = () => {
-	store.dispatch(startLocationFetch());
-
-	axios.get('http://ipinfo.io').then(function(res) {
-		var loc = res.data.loc;
-		var baseUrl = 'http://maps.google.com?q=';
-
-		store.dispatch(completeLocationFetch(baseUrl + loc));
-	});
-	
-};
 
 
 var unsuscribeStore = store.subscribe(() => {
@@ -198,12 +89,12 @@ var action = {
 	searchTodo: 'new'
 };
 
-fetchLocation();
+store.dispatch(actions.fetchLocation());
 
 store.dispatch(action);
 
-store.dispatch(addTodo('Walk Dog'));
+store.dispatch(actions.addTodo('Walk Dog'));
 
-store.dispatch(addTodo('Go for movies'));
+store.dispatch(actions.addTodo('Go for movies'));
 
-store.dispatch(removeTodo(2));
+store.dispatch(actions.removeTodo(2));
