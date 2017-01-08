@@ -55,7 +55,12 @@ var reducer = (state = defaultState, action) => {
 						todo: action.todo
 					}
 				]
-			}
+			};
+		case 'REMOVE_TODO': 
+			return {
+				...state,
+				todos: state.todos.filter((todo) => todo.id !== action.id)
+			};
 		default:
 			return state;
 	}
@@ -88,4 +93,14 @@ store.dispatch(action);
 store.dispatch({
 	type: 'ADD_TODO',
 	todo: 'Walk dog'
+});
+
+store.dispatch({
+	type: 'ADD_TODO',
+	todo: 'Go for movies'
+});
+
+store.dispatch({
+	type: 'REMOVE_TODO',
+	id: '2'
 });
