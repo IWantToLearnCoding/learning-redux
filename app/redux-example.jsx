@@ -38,7 +38,7 @@ var defaultState = {
 var nextTodoId = 1;
 
 //Reducer takes state and action, combines them and return new state (completely different object)
-var reducer = (state = defaultState, action) => {
+/*var oldReducer = (state = defaultState, action) => {
 	
 	switch(action.type) {
 		case 'CHANGE_SEARCH_TODO':
@@ -64,7 +64,48 @@ var reducer = (state = defaultState, action) => {
 		default:
 			return state;
 	}
+};*/
+
+var searchTodoReducer = (state = '', action) => {
+	switch(action.type) {
+		case 'CHANGE_SEARCH_TODO':
+			return action.searchTodo;
+		default:
+			return state;
+	}	
 };
+
+var showCompletedReducer = (state = false, action) => {
+	switch(action.type) {
+		case 'CHANGE_STATUS': 
+			return action.showCompleted;
+		default:
+			return state;
+	}
+};
+
+var todosReducer = (state = [], action) => {
+	switch(action.type) {
+		case 'ADD_TODO':
+			return [
+				...state,
+				{
+					id: nextTodoId++,
+					todo: action.todo
+				}
+			];
+		case 'REMOVE_TODO': 
+			return state.filter((todo) => todo.id !== action.id);
+		default:
+			return state;	
+	}
+};
+
+var reducer = redux.combineReducers({
+	searchTodo: searchTodoReducer,
+	showCompleted: showCompletedReducer,
+	todos: todosReducer
+});
 
 var store = redux.createStore(reducer, redux.compose(
 	//this function is a sort of configuration with which it is possible to use redux devtools with chrome dev tools. Just copy paste this.
