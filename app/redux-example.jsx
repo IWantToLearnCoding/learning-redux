@@ -29,11 +29,11 @@ var redux = require('redux');
 
 console.log('Starting Redux First App');
 
-var defaultState = {
+/*var defaultState = {
 	searchTodo: '',
 	showCompleted: false,
 	todos: []
-};
+};*/
 
 var nextTodoId = 1;
 
@@ -65,7 +65,8 @@ var nextTodoId = 1;
 			return state;
 	}
 };*/
-
+//SearchTodoReducer and aciton generators
+//-------------------------------
 var searchTodoReducer = (state = '', action) => {
 	switch(action.type) {
 		case 'CHANGE_SEARCH_TODO':
@@ -75,6 +76,9 @@ var searchTodoReducer = (state = '', action) => {
 	}	
 };
 
+
+//showCompletedReducer and aciton generators
+//-------------------------------
 var showCompletedReducer = (state = false, action) => {
 	switch(action.type) {
 		case 'CHANGE_STATUS': 
@@ -84,6 +88,8 @@ var showCompletedReducer = (state = false, action) => {
 	}
 };
 
+//todosReducer and aciton generators
+//-------------------------------
 var todosReducer = (state = [], action) => {
 	switch(action.type) {
 		case 'ADD_TODO':
@@ -98,6 +104,19 @@ var todosReducer = (state = [], action) => {
 			return state.filter((todo) => todo.id !== action.id);
 		default:
 			return state;	
+	}
+};
+var addTodo = (todo) => {
+	return {
+		type: 'ADD_TODO',
+		todo
+	};
+};
+
+var removeTodo = (id) => {
+	return {
+		type: 'REMOVE_TODO',
+		id
 	}
 };
 
@@ -118,6 +137,7 @@ var store = redux.createStore(reducer, redux.compose(
 
 var unsuscribeStore = store.subscribe(() => {
 	var state = store.getState();
+	console.log(state);
 	//console.log('State searchTodo: ' + state.searchTodo);
 	document.getElementById('app').innerHTML = state.searchTodo;
 });
@@ -131,17 +151,8 @@ var action = {
 };
 store.dispatch(action);
 
-store.dispatch({
-	type: 'ADD_TODO',
-	todo: 'Walk dog'
-});
+store.dispatch(addTodo('Walk Dog'));
 
-store.dispatch({
-	type: 'ADD_TODO',
-	todo: 'Go for movies'
-});
+store.dispatch(addTodo('Go for movies'));
 
-store.dispatch({
-	type: 'REMOVE_TODO',
-	id: '2'
-});
+store.dispatch(removeTodo(2));
