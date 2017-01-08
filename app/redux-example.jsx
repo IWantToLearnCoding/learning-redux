@@ -26,6 +26,7 @@ Basic points for REDUX
 */
 
 var redux = require('redux');
+var axios = require('axios');
 
 console.log('Starting Redux First App');
 
@@ -120,10 +121,41 @@ var removeTodo = (id) => {
 	}
 };
 
+var mapReducer = (state = {isFetching: false, url: undefined}, action) => {
+	switch(action.type) {
+		case 'START_LOCATION_FETCH':
+			return { 
+					isFetching: true,
+					url: undefined
+				};
+		case 'COMPLETE_LOCATION_FETCH': 
+			return {
+					isFetching: false,
+					url: action.url
+				};
+		default:
+			return state;	
+	}
+};
+
+var startLocationFetch = () => {
+	return {
+		type: 'START_LOCATION_FETCH'
+	};
+};
+
+var completeLocationFetch = (url) => {
+	return {
+		type: 'COMPLETE_LOCATION_FETCH',
+		url
+	};
+};
+
 var reducer = redux.combineReducers({
 	searchTodo: searchTodoReducer,
 	showCompleted: showCompletedReducer,
-	todos: todosReducer
+	todos: todosReducer,
+	map: mapReducer
 });
 
 var store = redux.createStore(reducer, redux.compose(
@@ -135,11 +167,27 @@ var store = redux.createStore(reducer, redux.compose(
 //subscribe to changes. subscribe method takes only one argument which is a cb that is executed whenever the state changes
 //call to subscribe returns a function that can be called to unsubscribe from state changes.
 
+var fetchLocation = () => {
+	store.dispatch(startLocationFetch());
+
+	axios.get('http://ipinfo.io').then(function(res) {
+		var loc = res.data.loc;
+		var baseUrl = 'http://maps.google.com?q=';
+
+		store.dispatch(completeLocationFetch(baseUrl + loc));
+	});
+	
+};
+
+
 var unsuscribeStore = store.subscribe(() => {
 	var state = store.getState();
 	console.log(state);
 	//console.log('State searchTodo: ' + state.searchTodo);
-	document.getElementById('app').innerHTML = state.searchTodo;
+	if(state.map.isFetching) {
+		document.getElementById('app').innerHTML = 'Fetching your location...';
+	} else if(state.map.url)
+		document.getElementById('app').innerHTML = '<a target="_blank" href="'+state.map.url+'+">View your location</a>';
 });
 
 //following is for unsubscribing...
@@ -149,6 +197,9 @@ var action = {
 	type: 'CHANGE_SEARCH_TODO',
 	searchTodo: 'new'
 };
+
+fetchLocation();
+
 store.dispatch(action);
 
 store.dispatch(addTodo('Walk Dog'));
